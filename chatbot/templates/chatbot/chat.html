@@ -1,0 +1,42 @@
+<!-- chatbot/templates/chatbot/chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <form id="chat-form">
+        <input type="text" id="message" placeholder="Type your message here">
+        <button type="submit">Send</button>
+    </form>
+    <div id="chatlogs"></div>
+    
+    <script>
+        $(document).ready(function() {
+            $('#chat-form').on('submit', function(event) {
+                event.preventDefault();
+                let userMessage = $('#message').val();
+                $('#chatlogs').append('<div><strong>You:</strong> ' + userMessage + '</div>');
+                $('#message').val('');
+
+                $.ajax({
+                    url: '{% url "predict" %}',
+                    method: 'POST',
+                    data: JSON.stringify({ message: userMessage }),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        $('#chatlogs').append('<div><strong>Bot:</strong> ' + response.response + '</div>');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
